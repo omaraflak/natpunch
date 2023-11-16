@@ -66,7 +66,7 @@ class MessageTimeout:
 
 
     def to_message(self) -> Message:
-        return Message(Message.MESSAGE_CONNECT, self.uid.encode())
+        return Message(Message.MESSAGE_TIMEOUT, self.uid.encode())
 
 
     @classmethod
