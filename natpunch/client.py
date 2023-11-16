@@ -46,18 +46,19 @@ class Client:
 
         message = Message.recv(sock)
         if message.message_id == Message.MESSAGE_TIMEOUT:
-            logging.info('Room closed after timeout')
+            logging.info('Room closed before another user could join')
             return None
 
         if message.message_id == Message.MESSAGE_CONNECT:
+            logging.info('Another user joined the room!')
             message_connect = MessageConnect.from_message(message)
             now = int(datetime.now().timestamp())
             if now > message_connect.time:
-                logging.info(f'Another user joined the room but could not sync.')
+                logging.info('Could not connect in time')
                 return None
             
             delay = message_connect.time - now
-            logging.info(f'Another user joined the room, connecting in {delay} seconds...')
+            logging.info(f'Connecting in {delay} seconds...')
             time.sleep(delay)
             return self._nat_punch(message_connect.ip, message_connect.port)
             

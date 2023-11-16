@@ -5,7 +5,7 @@ from typing import Optional
 from natpunch.client import Client
 
 def main(
-    host: str = '0.0.0.0',
+    host: str = 'localhost',
     port: int = 6709,
     room: Optional[str] = None,
     logging_level: str = 'info'
@@ -25,7 +25,7 @@ def main(
     logging.info(f'Public ip: {external_ip}')
     logging.info(f'Public port: {external_port}')
 
-    client = Client(external_ip, external_port, 'localhost', 6709, room)
+    client = Client(external_ip, external_port, host, port, room)
     sock = client.start()
     if sock is not None:
         logging.info('Peer to peer connection established! Disconnecting...')
