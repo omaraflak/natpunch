@@ -16,6 +16,6 @@ def _recv_all(sock: socket.socket, size: int) -> bytes:
     while len(data) != size:
         received = sock.recv(size - len(data))
         if received == b'':
-            raise RuntimeError('socket closed!')
+            raise socket.error('socket closed!')
         data.extend(received)
     return bytes(data)
