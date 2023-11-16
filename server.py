@@ -18,7 +18,7 @@ def main(
         'info': logging.INFO,
         'debug': logging.DEBUG
     }
-    logging.basicConfig(level=levels.get(logging_level, 'error'))
+    logging.basicConfig(level=levels.get(logging_level, 'info'))
     Server(host, port, connect_delay, room_ttl).start()
 
 
