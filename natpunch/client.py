@@ -7,7 +7,7 @@ from datetime import datetime
 from natpunch.message import Message, MessageJoin, MessageConnect
 
 
-class Client:
+class NatPunchClient:
     def __init__(
         self,
         source_ip: str = '0.0.0.0',

@@ -1,6 +1,6 @@
 import fire
 import logging
-from natpunch.server import Server
+from natpunch.server import NatPunchServer
 
 
 def main(
@@ -10,16 +10,8 @@ def main(
     room_ttl: int = 120,
     logging_level: str = 'info'
 ):
-    levels = {
-        'critical': logging.CRITICAL,
-        'error': logging.ERROR,
-        'warn': logging.WARNING,
-        'warning': logging.WARNING,
-        'info': logging.INFO,
-        'debug': logging.DEBUG
-    }
-    logging.basicConfig(level=levels.get(logging_level, 'info'))
-    Server(host, port, connect_delay, room_ttl).start()
+    logging.basicConfig(level=logging._nameToLevel.get(logging_level, 'info'))
+    NatPunchServer(host, port, connect_delay, room_ttl).start()
 
 
 if __name__ == "__main__":

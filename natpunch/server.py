@@ -9,7 +9,7 @@ from natpunch.room import Room
 from natpunch.message import Message, MessageJoin, MessageConnect, MessageTimeout
 
 
-class Server:
+class NatPunchServer:
     def __init__(self, host: str, port: int, connect_delay: int, room_ttl: int):
         self.host = host
         self.port = port
