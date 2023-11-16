@@ -61,7 +61,6 @@ class NatPunchClient:
             delay = message_connect.time - now
             logging.info(f'Connecting in {delay} seconds...')
             time.sleep(delay)
-            socket.close()
             return self._nat_punch(message_connect.ip, message_connect.port)
             
 
