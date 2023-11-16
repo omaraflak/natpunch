@@ -13,4 +13,5 @@ logging.info(f'Public port: {external_port}')
 client = Client(external_ip, external_port, 'localhost', 6709)
 sock = client.start()
 if sock is not None:
+    # peer to peer connection established
     sock.close()
