@@ -4,7 +4,7 @@ import random
 import logging
 from typing import Optional
 from datetime import datetime
-from message import Message, MessageJoin, MessageConnect
+from natpunch.message import Message, MessageJoin, MessageConnect
 
 
 class Client:

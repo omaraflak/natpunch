@@ -1,6 +1,6 @@
 import stun
 import logging
-from client import Client
+from natpunch.client import Client
 
 logging.basicConfig(level=logging.INFO)
 

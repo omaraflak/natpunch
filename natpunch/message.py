@@ -1,7 +1,6 @@
-import json
 import socket
 from dataclasses import dataclass
-from utils import sock_recv, sock_send
+from natpunch.utils import sock_recv, sock_send
 
 
 @dataclass

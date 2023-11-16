@@ -6,8 +6,8 @@ from typing import Callable
 from threading import Thread
 from datetime import datetime, timedelta
 
-from room import Room
-from message import Message, MessageJoin, MessageConnect, MessageTimeout
+from natpunch.room import Room
+from natpunch.message import Message, MessageJoin, MessageConnect, MessageTimeout
 
 
 class Server:
