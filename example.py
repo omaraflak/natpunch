@@ -10,7 +10,7 @@ logging.info(f'NAT type: {nat_type}')
 logging.info(f'Public ip: {external_ip}')
 logging.info(f'Public port: {external_port}')
 
-client = Client(external_ip, 8888, 'localhost', 6709, 'dbe6')
+client = Client(external_ip, external_port, 'localhost', 6709)
 sock = client.start()
 if sock is not None:
     sock.close()
