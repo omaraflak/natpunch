@@ -10,7 +10,15 @@ def main(
     room_ttl: int = 120,
     logging_level: str = 'info'
 ):
-    logging.basicConfig(level=logging._nameToLevel.get(logging_level, 'info'))
+    levels = {
+        'critical': logging.CRITICAL,
+        'error': logging.ERROR,
+        'warn': logging.WARNING,
+        'warning': logging.WARNING,
+        'info': logging.INFO,
+        'debug': logging.DEBUG
+    }
+    logging.basicConfig(level=levels.get(logging_level, 'info'))
     NatPunchServer(host, port, connect_delay, room_ttl).start()
 
 

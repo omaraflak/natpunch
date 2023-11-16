@@ -10,7 +10,15 @@ def main(
     room: Optional[str] = None,
     logging_level: str = 'info'
 ):
-    logging.basicConfig(level=logging._nameToLevel.get(logging_level, 'info'))
+    levels = {
+        'critical': logging.CRITICAL,
+        'error': logging.ERROR,
+        'warn': logging.WARNING,
+        'warning': logging.WARNING,
+        'info': logging.INFO,
+        'debug': logging.DEBUG
+    }
+    logging.basicConfig(level=levels.get(logging_level, 'info'))
 
     nat_type, external_ip, external_port = stun.get_ip_info(stun_host='stun.l.google.com', stun_port=19302)
     logging.info(f'NAT type: {nat_type}')
