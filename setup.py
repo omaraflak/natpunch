@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 
 setup(
@@ -8,5 +8,5 @@ setup(
     author='Omar Aflak',
     author_email='aflakomar@gmail.com',
     description='A tool to coordinate NAT hole punching',
-    packages=find_packages(),
+    packages=['natpunch'],
 )
