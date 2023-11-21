@@ -20,7 +20,7 @@ class NatPunchServer:
 
 
     def start(self):
-        logging.info(f'Start server on {self.host}:{self.port}...')
+        logging.info(f'Starting server on {self.host}:{self.port}...')
         self.server.bind((self.host, self.port))
         self.server.listen()
         self._accept_clients()
@@ -37,22 +37,23 @@ class NatPunchServer:
             logging.error(e)
 
 
-    def _handle_client(self, client: socket):
+    def _handle_client(self, client: socket.socket):
         try:
+            ip, port = client.getpeername()
             while True:
                 message = Message.recv(client)
                 if message.message_id == Message.MESSAGE_JOIN:
                     message_join = MessageJoin.from_message(message)
                     uid = message_join.uid
-                    logging.info(f'Client {message_join.ip}:{message_join.port} wants to join room {uid}')
+                    logging.info(f'Client {ip}:{port} wants to join room {uid}')
                     if uid in self.rooms:
                         room = self.rooms[uid]
                         del self.rooms[uid]
                         time = int((datetime.now() + timedelta(seconds=self.connect_delay)).timestamp())
-                        MessageConnect(room.ip, room.port, time).to_message().send(client)
-                        MessageConnect(message_join.ip, message_join.port, time).to_message().send(room.sock)
+                        MessageConnect(ip, port, room.ip, room.port, time).to_message().send(client)
+                        MessageConnect(room.ip, room.port, ip, port, time).to_message().send(room.sock)
                     else:
-                        self.rooms[uid] = Room(message_join.ip, message_join.port, client)
+                        self.rooms[uid] = Room(ip, port, client)
                         self._call_later(lambda: self._remove_room_and_notify(uid, client), self.room_ttl)
         except socket.error as e:
             logging.error(e)
@@ -63,10 +64,9 @@ class NatPunchServer:
 
     def _remove_room_and_notify(self, uid: str, sock: socket.socket):
         logging.info(f'Deleting room {uid}...')
-        if uid not in self.rooms:
-            return
-        del self.rooms[uid]
-        MessageTimeout(uid).to_message().send(sock)
+        if uid in self.rooms:
+            del self.rooms[uid]
+            MessageTimeout(uid).to_message().send(sock)
 
 
     def _call_later(self, function: Callable[[], None], delay: int):

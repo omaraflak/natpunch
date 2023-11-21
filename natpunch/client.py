@@ -10,17 +10,13 @@ from natpunch.message import Message, MessageJoin, MessageConnect
 class NatPunchClient:
     def __init__(
         self,
-        server_ip: str,
-        server_port: int,
-        source_ip: str,
-        source_port: int,
+        ip: str,
+        port: int,
         room: Optional[str] = None,
         max_attempts: int = 10
     ):
-        self.source_ip = source_ip
-        self.source_port = source_port
-        self.server_ip = server_ip
-        self.server_port = server_port
+        self.ip = ip
+        self.port = port
         self.room = room or random.randbytes(2).hex()
         self.max_attempts = max_attempts
 
@@ -28,23 +24,26 @@ class NatPunchClient:
     def start(self) -> Optional[socket.socket]:
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
             return self._start(sock)
         except socket.error as e:
             logging.error(e)
             return None
         finally:
+            sock.shutdown(socket.SHUT_RDWR)
             sock.close()
 
 
     def _start(self, sock: socket.socket) -> Optional[socket.socket]:
-        logging.info(f'Connecting to {self.server_ip}:{self.server_port}...')
-        sock.connect((self.server_ip, self.server_port))
+        logging.info(f'Connecting to natpunch server {self.ip}:{self.port}...')
+        sock.connect((self.ip, self.port))
         logging.info(f'Connected!')
 
         logging.info(f'Joining room "{self.room}"...')
-        MessageJoin(self.source_ip, self.source_port, self.room).to_message().send(sock)
+        MessageJoin(self.room).to_message().send(sock)
 
-        logging.info(f'Waiting for another user...')
+        logging.info('Waiting for another user...')
         message = Message.recv(sock)
         if message.message_id == Message.MESSAGE_TIMEOUT:
             logging.info('Room closed before another user could join')
@@ -57,19 +56,22 @@ class NatPunchClient:
             if now > message_connect.time:
                 logging.info('Could not connect in time')
                 return None
-            
+
             delay = message_connect.time - now
             logging.info(f'Connecting in {delay} seconds...')
             time.sleep(delay)
-            return self._nat_punch(message_connect.ip, message_connect.port)
-            
+            return self._nat_punch(message_connect)
 
-    def _nat_punch(self, ip: str, port: int) -> Optional[socket.socket]:
+
+    def _nat_punch(self, connect: MessageConnect) -> Optional[socket.socket]:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+    
+        logging.info(f'Binding socket on port {connect.source_port}')
+        sock.bind(('0.0.0.0', connect.source_port))
 
-        logging.info(f'Binding socket on {self.source_ip}:{self.source_port}...')
-        sock.bind(('0.0.0.0', self.source_port))
-
+        ip, port = connect.dest_ip, connect.dest_port
         logging.info(f'Initiate NAT punching on {ip}:{port}...')
         sock.settimeout(30)
         for _ in range(self.max_attempts):
