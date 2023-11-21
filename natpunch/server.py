@@ -4,8 +4,6 @@ import logging
 from typing import Callable
 from threading import Thread
 from datetime import datetime, timedelta
-
-from natpunch.room import Room
 from natpunch.message import Message, MessageJoin, MessageConnect, MessageTimeout
 
 
@@ -15,7 +13,7 @@ class NatPunchServer:
         self.port = port
         self.connect_delay = connect_delay
         self.room_ttl = room_ttl
-        self.rooms: dict[str, Room] = dict()
+        self.rooms: dict[str, socket.socket] = dict()
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 
@@ -37,29 +35,30 @@ class NatPunchServer:
             logging.error(e)
 
 
-    def _handle_client(self, client: socket.socket):
+    def _handle_client(self, client1: socket.socket):
         try:
-            ip, port = client.getpeername()
+            ip1, port1 = client1.getpeername()
             while True:
-                message = Message.recv(client)
+                message = Message.recv(client1)
                 if message.message_id == Message.MESSAGE_JOIN:
                     message_join = MessageJoin.from_message(message)
                     uid = message_join.uid
-                    logging.info(f'Client {ip}:{port} wants to join room {uid}')
+                    logging.info(f'Client {ip1}:{port1} joined room "{uid}"')
                     if uid in self.rooms:
-                        room = self.rooms[uid]
+                        client2 = self.rooms[uid]
+                        ip2, port2 = client2.getpeername()
                         del self.rooms[uid]
                         time = int((datetime.now() + timedelta(seconds=self.connect_delay)).timestamp())
-                        MessageConnect(ip, port, room.ip, room.port, time).to_message().send(client)
-                        MessageConnect(room.ip, room.port, ip, port, time).to_message().send(room.sock)
+                        MessageConnect(ip1, port1, ip2, port2, time).to_message().send(client1)
+                        MessageConnect(ip2, port2, ip1, port1, time).to_message().send(client2)
                     else:
-                        self.rooms[uid] = Room(ip, port, client)
-                        self._call_later(lambda: self._remove_room_and_notify(uid, client), self.room_ttl)
+                        self.rooms[uid] = client1
+                        self._call_later(lambda: self._remove_room_and_notify(uid, client1), self.room_ttl)
         except socket.error as e:
             logging.error(e)
             return
         finally:
-            client.close()
+            client1.close()
 
 
     def _remove_room_and_notify(self, uid: str, sock: socket.socket):
