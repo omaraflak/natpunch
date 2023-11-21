@@ -26,38 +26,42 @@ class Message:
 
 @dataclass
 class MessageJoin:
-    ip: str
-    port: int
     uid: str
 
 
     def to_message(self) -> Message:
-        payload = f"{self.ip}:{self.port}:{self.uid}".encode()
-        return Message(Message.MESSAGE_JOIN, payload)
+        return Message(Message.MESSAGE_JOIN, self.uid.encode())
 
 
     @classmethod
     def from_message(cls, message: Message) -> 'MessageJoin':
-        ip, port, uid = message.payload.decode().split(':')
-        return MessageJoin(ip, int(port), uid)
+        return MessageJoin(message.payload.decode())
 
 
 @dataclass
 class MessageConnect:
-    ip: str
-    port: int
+    source_ip: str
+    source_port: int
+    dest_ip: str
+    dest_port: int
     time: int
 
 
     def to_message(self) -> Message:
-        payload = f"{self.ip}:{self.port}:{self.time}".encode()
+        payload = ' '.join([
+            self.source_ip,
+            str(self.source_port),
+            self.dest_ip,
+            str(self.dest_port),
+            str(self.time)
+        ]).encode()
         return Message(Message.MESSAGE_CONNECT, payload)
 
 
     @classmethod
     def from_message(cls, message: Message) -> 'MessageConnect':
-        ip, port, time = message.payload.decode().split(':')
-        return MessageConnect(ip, int(port), int(time))
+        source_ip, source_port, dest_ip, dest_port, time = message.payload.decode().split(' ')
+        return MessageConnect(source_ip, int(source_port), dest_ip, int(dest_port), int(time))
 
 
 @dataclass
