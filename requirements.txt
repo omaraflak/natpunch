@@ -1,2 +1,2 @@
 fire
-setuptools
+git+https://github.com/omaraflak/pysock.git

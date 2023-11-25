@@ -6,7 +6,7 @@ from natpunch.server import NatPunchServer
 def main(
     host: str = '0.0.0.0',
     port: int = 6709,
-    connect_delay: int = 10,
+    connect_delay: int = 5,
     room_ttl: int = 120,
     logging_level: str = 'info'
 ):

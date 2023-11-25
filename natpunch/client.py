@@ -26,6 +26,7 @@ class NatPunchClient:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+            sock.settimeout(120)
             return self._start(sock)
         except socket.error as e:
             logging.error(e)
@@ -52,13 +53,13 @@ class NatPunchClient:
         if message.message_id == Message.MESSAGE_CONNECT:
             logging.info('Another user joined the room!')
             message_connect = MessageConnect.from_message(message)
-            now = int(datetime.now().timestamp())
+            now = datetime.now().timestamp()
             if now > message_connect.time:
                 logging.info('Could not connect in time')
                 return None
 
             delay = message_connect.time - now
-            logging.info(f'Connecting in {delay} seconds...')
+            logging.info(f'Connecting in {int(delay)} seconds...')
             time.sleep(delay)
             return self._nat_punch(message_connect)
 
