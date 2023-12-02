@@ -1,6 +1,6 @@
 import socket
 from dataclasses import dataclass
-from pysock import socket_recv, socket_send
+from natpunch.io import send, recv
 
 
 @dataclass
@@ -15,12 +15,12 @@ class Message:
 
     def send(self, sock: socket.socket):
         data = self.message_id.to_bytes(1, 'big') + self.payload
-        socket_send(sock, data)
+        send(sock, data)
 
 
     @classmethod
     def recv(cls, sock: socket.socket) -> 'Message':
-        data = socket_recv(sock)
+        data = recv(sock)
         return Message(data[0], data[1:])
 
 

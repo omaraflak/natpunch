@@ -1,2 +1,1 @@
 fire
-git+https://github.com/omaraflak/pysock.git
