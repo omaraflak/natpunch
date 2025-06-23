@@ -3,6 +3,7 @@ import logging
 from typing import Optional
 from natpunch.client import NatPunchClient
 
+
 def main(
     ip: str,
     port: int = 6709,
