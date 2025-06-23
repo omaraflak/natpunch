@@ -12,11 +12,9 @@ class Message:
     message_id: int
     payload: bytes = b''
 
-
     def send(self, sock: socket.socket):
         data = self.message_id.to_bytes(1, 'big') + self.payload
         send(sock, data)
-
 
     @classmethod
     def recv(cls, sock: socket.socket) -> 'Message':
@@ -28,10 +26,8 @@ class Message:
 class MessageJoin:
     uid: str
 
-
     def to_message(self) -> Message:
         return Message(Message.MESSAGE_JOIN, self.uid.encode())
-
 
     @classmethod
     def from_message(cls, message: Message) -> 'MessageJoin':
@@ -46,7 +42,6 @@ class MessageConnect:
     dest_port: int
     time: int
 
-
     def to_message(self) -> Message:
         payload = ' '.join([
             self.source_ip,
@@ -56,7 +51,6 @@ class MessageConnect:
             str(self.time)
         ]).encode()
         return Message(Message.MESSAGE_CONNECT, payload)
-
 
     @classmethod
     def from_message(cls, message: Message) -> 'MessageConnect':
@@ -68,10 +62,8 @@ class MessageConnect:
 class MessageTimeout:
     uid: str
 
-
     def to_message(self) -> Message:
         return Message(Message.MESSAGE_TIMEOUT, self.uid.encode())
-
 
     @classmethod
     def from_message(cls, message: Message) -> 'MessageTimeout':

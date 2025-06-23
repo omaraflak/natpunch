@@ -6,6 +6,7 @@ def send(sock: socket.socket, data: bytes):
     size_bytes = len(data).to_bytes(4, 'big')
     sock.sendall(size_bytes + data)
 
+
 def recv(sock: socket.socket) -> bytes:
     size = int.from_bytes(_recv_all(sock, 4), 'big')
     return _recv_all(sock, size)

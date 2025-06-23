@@ -2,7 +2,6 @@ import time
 import socket
 import random
 import logging
-from typing import Optional
 from datetime import datetime
 from natpunch.message import Message, MessageJoin, MessageConnect
 
@@ -12,7 +11,7 @@ class NatPunchClient:
         self,
         ip: str,
         port: int,
-        room: Optional[str] = None,
+        room: str | None = None,
         max_attempts: int = 10
     ):
         self.ip = ip
@@ -20,8 +19,7 @@ class NatPunchClient:
         self.room = room or random.randbytes(2).hex()
         self.max_attempts = max_attempts
 
-
-    def start(self) -> Optional[socket.socket]:
+    def start(self) -> socket.socket | None:
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -35,8 +33,7 @@ class NatPunchClient:
             sock.shutdown(socket.SHUT_RDWR)
             sock.close()
 
-
-    def _start(self, sock: socket.socket) -> Optional[socket.socket]:
+    def _start(self, sock: socket.socket) -> socket.socket | None:
         logging.info(f'Connecting to natpunch server {self.ip}:{self.port}...')
         sock.connect((self.ip, self.port))
         logging.info(f'Connected!')
@@ -63,12 +60,11 @@ class NatPunchClient:
             time.sleep(delay)
             return self._nat_punch(message_connect)
 
-
-    def _nat_punch(self, connect: MessageConnect) -> Optional[socket.socket]:
+    def _nat_punch(self, connect: MessageConnect) -> socket.socket | None:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
-    
+
         logging.info(f'Binding socket on port {connect.source_port}')
         sock.bind(('0.0.0.0', connect.source_port))
 
@@ -82,6 +78,6 @@ class NatPunchClient:
                 return sock
             except socket.error as e:
                 logging.error(f'Could not connect to {ip}:{port}: {e}')
-        
+
         sock.close()
         return None
